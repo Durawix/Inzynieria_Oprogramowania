@@ -1,4 +1,4 @@
-# Instructions
+# Instrukcja
 
 # Wymagania
 
