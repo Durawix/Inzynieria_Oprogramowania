@@ -29,11 +29,32 @@ n_results = st.slider("Number of results to display:", min_value=1, max_value=20
 def is_valid_input(text):
     if len(text) < 3:  # Too short
         return False, "Query is too short. Please enter a more descriptive question."
-    if re.fullmatch(r"[a-zA-Z]{1,3}", text):  # Too short single-word nonsense
-        return False, "Query is too short. Use a complete sentence or phrase."
     if re.search(r"(.)\1{4,}", text):  # Repeated characters
         return False, "Query contains repeated characters or nonsense text."
     return True, None
+
+# Function to filter results based on query
+def filter_results(query, results):
+    # Parse documents
+    documents = results['documents']
+    if not documents or len(documents[0]) == 0:
+        return None, "No matching products found."
+    
+    parsed_documents = [json.loads(doc) for doc in documents[0]]
+    df = pd.DataFrame(parsed_documents)
+    
+    # Identify what the user is asking for
+    if "aisle" in query.lower():
+        # Return aisle information
+        filtered_df = df[["Product", "Aisle Name", "Aisle Number"]]
+        return filtered_df, None
+    elif "price" in query.lower():
+        # Return price information
+        filtered_df = df[["Product", "Price"]]
+        return filtered_df, None
+    else:
+        # Default: return all product details
+        return df, None
 
 # Validate and process user input
 if user_input:
@@ -54,17 +75,13 @@ if user_input:
                 n_results=n_results
             )
 
-            # Parse documents from the results
-            documents = results['documents']
-            if not documents or len(documents[0]) == 0:
-                st.warning("No matching products found. Try a different query!")
+            # Filter results based on the query
+            filtered_df, error_message = filter_results(user_input, results)
+            if error_message:
+                st.warning(error_message)
             else:
-                parsed_documents = [json.loads(doc) for doc in documents[0]]
-                df = pd.DataFrame(parsed_documents)
-
-                # Display results in a table
-                st.success(f"Found {len(parsed_documents)} matching products:")
-                st.table(df)
+                st.success(f"Results for your query:")
+                st.table(filtered_df)
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
