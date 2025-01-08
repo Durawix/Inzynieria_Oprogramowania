@@ -21,7 +21,7 @@ pip install -r requirements.txt
 
 chroma run --host localhost --port 8000 --path ./embeddings_db
 
-Open new terminal window
+Terminal -> Split terminal
 
 .venv\Scripts\activate
 
