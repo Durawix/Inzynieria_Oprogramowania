@@ -37,3 +37,4 @@ for i, row in data.iterrows():
     embeddings=[embedding],
     documents=[document]
   )
+  
